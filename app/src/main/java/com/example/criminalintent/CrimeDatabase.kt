@@ -12,7 +12,7 @@ import androidx.room.TypeConverters
 // & managing tables for the database
 // second: the version fo the database -- when first created = version 1.
 
-@Database(entities = [ Crime::class ], version=1)
+@Database(entities = [ Crime::class ], version=1, exportSchema = true)
 @TypeConverters(CrimeTypeConverters::class) // adding converters to database class
 abstract class CrimeDatabase : RoomDatabase() {
 

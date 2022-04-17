@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import java.util.*
+import java.util.concurrent.Executors
 
 // singleton-- only one instance in app process. Exists only as long as the app stays in memory
 // destroyed when Android removes app from memory - not long term storage solution, but
@@ -19,6 +20,7 @@ class CrimeRepository private constructor(context: Context) {
         DATABASE_NAME
     ).build()
     private val crimeDao = database.crimeDao()
+    private val executor = Executors.newSingleThreadExecutor()
 
 //    fun getCrimes(): List<Crime> = crimeDao.getCrimes()
     fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
@@ -26,8 +28,16 @@ class CrimeRepository private constructor(context: Context) {
 //    fun getCrime(id: UUID): Crime? = crimeDao.getCrime(id)
     fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
 
-
-
+    fun updateCrime(crime: Crime) {
+        executor.execute {
+            crimeDao.updateCrime(crime)
+        }
+    }
+    fun addCrime(crime: Crime) {
+        executor.execute {
+            crimeDao.addCrime(crime)
+        }
+    }
 
     companion object {
         private var INSTANCE: CrimeRepository? = null

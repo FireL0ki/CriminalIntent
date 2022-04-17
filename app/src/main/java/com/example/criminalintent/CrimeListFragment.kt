@@ -1,5 +1,6 @@
 package com.example.criminalintent
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,17 +14,29 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
 private const val TAG = "CrimeListFragment"
 
     class CrimeListFragment : Fragment() {
 
+        // Required interface for hosting activities
+        interface Callbacks {
+            fun onCrimeSelected(crimeId: UUID)
+        }
+        private var callbacks: Callbacks? = null
+
+
         private lateinit var crimeRecyclerView: RecyclerView
         private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
-
         // set up crimeLiveViewModel with lazy initialization (to be created when needed)
         private val crimeListViewModel: CrimeListViewModel by lazy {
             ViewModelProviders.of(this).get(CrimeListViewModel::class.java)
+        }
+
+        override fun onAttach(context: Context) {
+            super.onAttach(context)
+            callbacks = context as Callbacks?
         }
 
         // on create, print list of crimes
@@ -59,6 +72,11 @@ private const val TAG = "CrimeListFragment"
                 })
         }
 
+        override fun onDetach() {
+            super.onDetach()
+            callbacks = null
+        }
+
 
         private fun updateUI(crimes: List<Crime>) {
             adapter = CrimeAdapter(crimes)
@@ -71,10 +89,8 @@ private const val TAG = "CrimeListFragment"
             : RecyclerView.ViewHolder(view), View.OnClickListener {
 
             private lateinit var crime: Crime
-
             private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
             private val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
-
             private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
 
             init {
@@ -94,10 +110,10 @@ private const val TAG = "CrimeListFragment"
             }
 
             override fun onClick(v: View) {
-                Toast.makeText(context, "${crime.title} pressed!", Toast.LENGTH_SHORT)
-                    .show()
+//                Toast.makeText(context, "${crime.title} pressed!", Toast.LENGTH_SHORT)
+//                    .show()
+                callbacks?.onCrimeSelected(crime.id)
             }
-
 
         }
 
